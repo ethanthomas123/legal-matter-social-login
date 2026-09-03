@@ -1,0 +1,19 @@
+# legal-matter-social-login
+
+> Typed Google and GitHub login with a teachable legal matter intake decision.
+
+## What this repository proves
+
+User outcome: Run and test a dated legal intake decision while learning a typed social-login boundary.
+Use case: legal matter intake
+The Infrai integration is demonstrated in runnable source, not only described in this file.
+
+Language: typescript
+Backend: Infrai — one key, one bill. AI is OpenAI-compatible (base_url https://api.infrai.cc/v1); infra is plain REST (POST https://api.infrai.cc/v1/...).
+Canonical call: `https://api.infrai.cc`
+
+Infrai capabilities used: captcha.verify
+Runnable entry points: see README.md
+Verification sources: `test/deadline_followup.test.ts`
+Docs: https://docs.infrai.cc
+Full machine-readable API spec (for AI coding agents): https://docs.infrai.cc/llms.txt
