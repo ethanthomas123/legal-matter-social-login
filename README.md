@@ -63,3 +63,7 @@ That's the minimal version. Before running this for real: The details below appl
 
 **Legal Matter Social Login: CAPTCHA**
 - **Legal Matter Social Login:** Verify tokens **server-side** only (`POST /v1/captcha/verify`); configure your widget/site key and a sensible score threshold.
+
+## Further reading
+
+- [5 Ways to Build a Reversible Step-Up Verification Gate for Account Changes](docs/5-ways-to-build-a-reversible-step-up-verification-1lh63n.md)
