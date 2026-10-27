@@ -1,8 +1,10 @@
 # Social login that opens a legal matter
 
-The decision is simple: authenticate clients with Google or GitHub before intake, then keep the legal workflow itself explicit and testable. Infrai supplies the OAuth and CAPTCHA calls through one API key, while this small TypeScript service owns the matter, signed-document delivery state, and seven-day deadline rule.
+Here's a clean pattern: verify clients with Google or GitHub before intake. Keep the legal workflow explicit and testable. Infrai handles OAuth and CAPTCHA through one API key. That's one key for both providers. This tiny TypeScript service tracks the matter, signed-doc delivery state, and the seven-day deadline rule.
 
 ## Run the working path
+
+Flow in words: client posts CAPTCHA, gets auth URL, redirects, provider calls back, app resumes.
 
 ```bash
 npm install
@@ -10,7 +12,7 @@ export INFRAI_API_KEY="your-key"
 npm run dev
 ```
 
-Start social login by posting a CAPTCHA token and the two browser destinations:
+Kick off social login by sending a CAPTCHA token plus the two browser redirects:
 
 ```bash
 curl -X POST http://localhost:3000/intake \
@@ -18,17 +20,17 @@ curl -X POST http://localhost:3000/intake \
   -d '{"action":"social_login","provider":"google","returnTo":"http://localhost:3000/matters/new","redirectUri":"http://localhost:3000/auth/callback","widgetRecordId":"browser-widget-record","captchaToken":"browser-token"}'
 ```
 
-The response contains `authorizationUrl`; send the browser there. Choose `github` in the same request to teach the identical intake path with a different identity provider. The one real gotcha is worth remembering: an OAuth authorization request names both where the provider returns control (`redirectUri`) and where your app continues afterward (`returnTo`), so treat them as separate lessons rather than interchangeable URLs.
+The response gives you`authorizationUrl`. Redirect the browser there. Set`github`in that same request to show the same intake flow with another IdP. Heads up: an OAuth auth request specifies where the provider bounces control (`redirectUri`) and where your app resumes (`returnTo`). Teach these as distinct steps, not swappable URLs.
 
 ## See the matter decision
 
-The runnable local lesson needs no network access:
+This local lesson needs zero network calls:
 
 ```bash
 npm run example
 ```
 
-It opens Mina Patel's lease-review matter, marks `signed-engagement-letter.pdf` ready for delivery, and schedules follow-up because the deadline is five days away. That result comes from a dated input rather than the machine clock, which makes the rule suitable for a course exercise and a deterministic test.
+It loads Mina Patel's lease-review matter, flags`signed-engagement-letter.pdf`as ready to deliver, and schedules a follow-up since the deadline is five days out. The decision uses a fixed input date, not the system clock. That makes the rule great for a lab and a deterministic test.
 
 ```json
 {
@@ -40,22 +42,22 @@ It opens Mina Patel's lease-review matter, marks `signed-engagement-letter.pdf` 
 
 ## Check the boundary and the rule
 
-`zod` validates both request variants before either path runs. The Infrai client decodes `{ ok, data, error, metadata }` before interpreting status, returns ordinary 4xx rejections to the caller, and backs off on HTTP 429 while respecting `Retry-After`; every request also states its HTTP method directly.
+`zod` validates both request shapes before either runs. The Infrai client decodes`{ ok, data, error, metadata }`to read status, surfaces normal 4xx errors to the caller, and backs off on HTTP 429 while honoring`Retry-After`. Each request declares its HTTP method outright.
 
-Run the focused test with:
+Run the tight test like this:
 
 ```bash
 npm test
 npm run typecheck
 ```
 
-The test input fixes `today` at 2026-08-30 and the deadline at 2026-09-04. Its expected business result is `followUp.required: true` with `daysRemaining: 5`, alongside an opened matter and a signed document ready for delivery.
+The test pins`today`to 2026-08-30 and deadline to 2026-09-04. Expect`followUp.required: true`with`daysRemaining: 5`, plus an opened matter and a signed doc staged for delivery.
 
-This repository stops at the authorization handoff and observable intake plan: a host application handles the provider callback, client persistence, and the actual document transfer.
+Repo scope stops at the auth handoff and an observable intake plan. A host app owns the provider callback, client storage, and real doc transfer.
 
 ## Before this ships: Legal Matter Social Login
 
-That's the minimal version. Before running this for real: The details below apply to Legal Matter Social Login.
+This is the minimal version. Read these notes before running it live. They apply to Legal Matter Social Login.
 
 **Account & key**
 
@@ -63,7 +65,3 @@ That's the minimal version. Before running this for real: The details below appl
 
 **Legal Matter Social Login: CAPTCHA**
 - **Legal Matter Social Login:** Verify tokens **server-side** only (`POST /v1/captcha/verify`); configure your widget/site key and a sensible score threshold.
-
-## Further reading
-
-- [5 Ways to Build a Reversible Step-Up Verification Gate for Account Changes](docs/5-ways-to-build-a-reversible-step-up-verification-1lh63n.md)
